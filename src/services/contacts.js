@@ -1,9 +1,39 @@
-import { Contact } from '../models/Contact.js';
+import { ContactsCollection } from '../db/models/contacts.js';
 
 export const getAllContacts = async () => {
-  return Contact.find();
+  const contacts = await ContactsCollection.find();
+  return contacts;
+};
+export const getContactById = async (contactId) => {
+  const contacts = await ContactsCollection.findById(contactId);
+  return contacts;
 };
 
-export const getContactById = async (id) => {
-  return Contact.findById(id);
+export const createContact = async (payload) => {
+  const contact = await ContactsCollection.create(payload);
+  return contact;
+};
+export const deleteContact = async (contactId) => {
+  const contact = await ContactsCollection.findOneAndDelete({ _id: contactId });
+  return contact;
+};
+export const updataContact = async (contactId, payload) => {
+  const contact = await ContactsCollection.findByIdAndUpdate(
+    contactId,
+    payload,
+    { new: true },
+  );
+  return contact;
+};
+
+export const replaceContact = async (contactId, payload) => {
+  const contact = await ContactsCollection.findByIdAndUpdate(
+    contactId,
+    payload,
+    { new: true, upsert: true },
+  );
+  return {
+    value: contact,
+    updatedExisting: contact.lastErrorObject.updatedExisting,
+  };
 };
