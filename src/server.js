@@ -18,10 +18,14 @@ export const setupServer = () => {
   app.use(cors());
 
   const logger = pino({
-    transport: {
-      target: 'pino-pretty',
+  transport: {
+    target: 'pino-pretty/package.js',  
+    options: {
+      colorize: true,  
     },
-  });
+  },
+});
+
   app.use(pinoHttp({ logger }));
 
   app.use(contactsRouter);
