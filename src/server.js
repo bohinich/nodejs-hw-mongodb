@@ -19,7 +19,7 @@ export const setupServer = () => {
 
   const logger = pino({
   transport: {
-    target: 'pino-pretty/package.js',  
+    target: 'pino-pretty',  
     options: {
       colorize: true,  
     },
