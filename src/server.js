@@ -24,10 +24,14 @@ export const setupServer = () => {
   app.use(cookieParser());
 
   const logger = pino({
-    transport: {
-      target: 'pino-pretty',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
     },
-  });
+  },
+});
+
   app.use(pinoHttp({ logger }));
 
   app.use('/auth', authRouter);
