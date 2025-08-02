@@ -22,6 +22,7 @@ export const getContactsController = async (req, res) => {
     sortBy,
     sortOrder,
     filter,
+    req.user.id,
   );
   res.json({
     status: 200,
@@ -32,7 +33,7 @@ export const getContactsController = async (req, res) => {
 
 export const getContactByIdController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
+  const contact = await getContactById(contactId, req.user.id);
 
   if (contact === null) {
     throw new createHttpError.NotFound('Contact not found');
@@ -46,7 +47,7 @@ export const getContactByIdController = async (req, res) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact(req.body);
+  const contact = await createContact({ ...req.body, userId: req.user.id });
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
@@ -56,7 +57,7 @@ export const createContactController = async (req, res) => {
 
 export const deleteContactController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await deleteContact(contactId);
+  const contact = await deleteContact(contactId, req.user.id);
 
   if (contact === null) {
     throw createHttpError.NotFound('Contact not found');
@@ -71,7 +72,7 @@ export const deleteContactController = async (req, res) => {
 
 export const updataContactController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await updataContact(contactId, req.body);
+  const contact = await updataContact(contactId, req.body, req.user.id);
   if (contact === null) {
     throw new createHttpError(404, 'Contact not found');
   }
@@ -84,7 +85,11 @@ export const updataContactController = async (req, res) => {
 
 export const replaceContactController = async (req, res) => {
   const { contactId } = req.params;
-  const { value, updatedExisting } = await replaceContact(contactId, req.body);
+  const { value, updatedExisting } = await replaceContact(
+    contactId,
+    req.body,
+    req.user.id,
+  );
 
   if (updatedExisting === true) {
     return res.json({
