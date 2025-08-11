@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 import path from 'node:path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 import { getEnvVariable } from './utils/getEnvVar.js';
 
@@ -17,12 +19,13 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
 
 import swaggerUi from 'swagger-ui-express';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import swaggerDocument from '../docs/swagger.json' assert { type: 'json' };
+// Замість імпорту JSON — читаємо файл вручну
+const swaggerPath = path.join(__dirname, '../docs/swagger.json');
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, 'utf-8'));
 
 const PORT = getEnvVariable('PORT') || 5150;
 
