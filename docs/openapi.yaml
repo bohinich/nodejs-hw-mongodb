@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Node.js Contacts API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: API для роботи з контактами, створений для навчального проєкту.
+tags:
+  - name: Contacts
+    description: Операції з контактами
+servers:
+  - url: http://localhost:3000
+  - url: 'https://nodejs-hw-mongodb-1r07.onrender.com'
+paths:
+  /contacts:
+    $ref: '../swagger/paths/contacts/get.yaml'
+  /contacts/{contactId}:
+    $ref: '../swagger/paths/contacts/{id}/get.yaml'
+  /contacts/post:
+    $ref: '../swagger/paths/contacts/post.yaml'
+  /contacts/patch/{contactId}:
+    $ref: '../swagger/paths/contacts/patch.yaml'
+  /contacts/delete/{contactId}:
+    $ref: '../swagger/paths/contacts/delete.yaml'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []

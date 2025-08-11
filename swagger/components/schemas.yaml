@@ -1,0 +1,23 @@
+Contact:
+  type: object
+  properties:
+    id:
+      type: string
+      example: '64d430b2ff4b3c2e4a3b8a1f'
+    name:
+      type: string
+      example: 'Ivan Ivanov'
+    email:
+      type: string
+      format: email
+      example: 'ivan@example.com'
+    phone:
+      type: string
+      example: '+380123456789'
+    favorite:
+      type: boolean
+      example: false
+  required:
+    - name
+    - email
+    - phone

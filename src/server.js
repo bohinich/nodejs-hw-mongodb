@@ -16,6 +16,14 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
 
+import swaggerUi from 'swagger-ui-express';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import swaggerDocument from '../docs/swagger.json' assert { type: 'json' };
+
 const PORT = getEnvVariable('PORT') || 5150;
 
 export const setupServer = () => {
@@ -34,6 +42,8 @@ export const setupServer = () => {
   });
   app.use(pinoHttp({ logger }));
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
 
@@ -45,6 +55,6 @@ export const setupServer = () => {
     if (error) {
       throw error;
     }
-    logger.info(`Server is runing on port ${PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
   });
 };
