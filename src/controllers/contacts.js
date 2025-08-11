@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import path from 'node:path';
 import createHttpError from 'http-errors';
 import {
   createContact,
@@ -10,6 +12,7 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { uploadToCloudinary } from '../utils/uploadToCloudinary.js';
 
 export const getContactsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -47,7 +50,14 @@ export const getContactByIdController = async (req, res) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact({ ...req.body, userId: req.user.id });
+  const result = await uploadToCloudinary(req.file.path);
+  console.log(result);
+
+  const contact = await createContact({
+    ...req.body,
+    photo: result.secure_url, //: `http://localhost:5010/photos/${req.file.filename}`,
+    userId: req.user.id,
+  });
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',

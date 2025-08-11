@@ -6,7 +6,7 @@ const userSchema = new Schema(
     email: { type: String, unique: true, require: true },
     password: { type: String, require: true },
   },
-  { timestamp: true, versionKey: false },
+  { timestamps: true, versionKey: false },
 );
 
 userSchema.methods.toJson = function () {

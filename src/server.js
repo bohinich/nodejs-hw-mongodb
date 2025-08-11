@@ -5,6 +5,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
+import path from 'node:path';
+
 import { getEnvVariable } from './utils/getEnvVar.js';
 
 import authRouter from './routers/auth.js';
@@ -22,6 +24,8 @@ export const setupServer = () => {
   app.use(express.json());
   app.use(cors());
   app.use(cookieParser());
+
+  app.use('/photos', express.static(path.resolve('src/uploads/photos')));
 
   const logger = pino({
     transport: {
