@@ -1,20 +1,21 @@
-tags:
-  - Contacts
-summary: Додати новий контакт
-operationId: addContact
-description: Створює новий контакт.
-security:
-  - bearerAuth: []
-requestBody:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '../../components/schemas.yaml#/Contact'
-responses:
-  '201':
-    description: Контакт створено успішно
+post:
+  tags:
+    - Contacts
+  summary: Додати новий контакт
+  operationId: addContact
+  description: Створює новий контакт.
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
     content:
       application/json:
         schema:
           $ref: '../../components/schemas.yaml#/Contact'
+  responses:
+    '201':
+      description: Контакт створено успішно
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schemas.yaml#/Contact'

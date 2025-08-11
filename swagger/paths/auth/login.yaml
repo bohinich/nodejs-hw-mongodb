@@ -1,0 +1,34 @@
+tags:
+  - Auth
+summary: Логін користувача
+operationId: loginUser
+description: Логін користувача з отриманням JWT токена.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          email:
+            type: string
+            example: user@example.com
+          password:
+            type: string
+            example: password123
+        required:
+          - email
+          - password
+responses:
+  '200':
+    description: Успішний логін із токеном
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1...
+  '401':
+    description: Невірні облікові дані

@@ -1,28 +1,29 @@
-tags:
-  - Contacts
-summary: Оновити контакт
-operationId: updateContact
-description: Оновлює дані контакту за ID.
-security:
-  - bearerAuth: []
-parameters:
-  - name: contactId
-    in: path
-    required: true
-    schema:
-      type: string
-requestBody:
-  required: true
-  content:
-    application/json:
+patch:
+  tags:
+    - Contacts
+  summary: Оновити контакт
+  operationId: updateContact
+  description: Оновлює дані контакту за ID.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: contactId
+      in: path
+      required: true
       schema:
-        $ref: '../../components/schemas.yaml#/Contact'
-responses:
-  '200':
-    description: Контакт оновлено
+        type: string
+  requestBody:
+    required: true
     content:
       application/json:
         schema:
           $ref: '../../components/schemas.yaml#/Contact'
-  '404':
-    $ref: '../../components/responses.yaml#/NotFound'
+  responses:
+    '200':
+      description: Контакт оновлено
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schemas.yaml#/Contact'
+    '404':
+      $ref: '../../components/responses.yaml#/NotFound'

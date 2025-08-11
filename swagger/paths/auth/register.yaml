@@ -1,0 +1,29 @@
+tags:
+  - Auth
+summary: Реєстрація користувача
+operationId: registerUser
+description: Створення нового користувача.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          email:
+            type: string
+            example: user@example.com
+          password:
+            type: string
+            example: password123
+          name:
+            type: string
+            example: John Doe
+        required:
+          - email
+          - password
+responses:
+  '201':
+    description: Користувач створений успішно
+  '400':
+    description: Помилка валідації
