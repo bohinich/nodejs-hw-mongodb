@@ -1,31 +1,24 @@
+const ALLOWED_TYPES = ['work', 'home', 'personal'];
+
 function parseType(value) {
-  if (typeof value === 'undefined') {
-    return undefined;
-  }
-  const keys = ['work', 'home', 'personal'];
-  if (keys.includes(value) !== true) {
-    return undefined;
-  }
-  return value;
+  if (!value) return undefined;
+  return ALLOWED_TYPES.includes(value) ? value : undefined;
 }
 
 function parseIsFavourite(value) {
-  if (typeof value === 'undefined') {
-    return undefined;
-  }
-  const parsedValue = JSON.parse(value);
-  console.log('🚀 ~ parseIsFavorite ~ parsedValue:', parsedValue);
-  return parsedValue;
+  if (!value) return undefined;
+
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+
+  return undefined; // все інше відкидаємо
 }
 
 export function parseFilterParams(query) {
   const { type, isFavourite } = query;
 
-  const parsedType = parseType(type);
-  const parsedIsFavorite = parseIsFavourite(isFavourite);
-
   return {
-    type: parsedType,
-    isFavourite: parsedIsFavorite,
+    type: parseType(type),
+    isFavourite: parseIsFavourite(isFavourite),
   };
 }

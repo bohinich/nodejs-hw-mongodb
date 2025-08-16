@@ -6,8 +6,6 @@ import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 import path from 'node:path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 import { getEnvVariable } from './utils/getEnvVar.js';
 
@@ -17,23 +15,20 @@ import contactsRouter from './routers/contacts.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
-import swaggerUi from 'swagger-ui-express';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Замість імпорту JSON — читаємо файл вручну
-const swaggerPath = path.join(__dirname, '../docs/swagger.json');
-const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, 'utf-8'));
-
-const PORT = getEnvVariable('PORT') || 5150;
+const PORT = Number(getEnvVariable('PORT')) || 5150;
 
 export const setupServer = () => {
   const app = express();
 
   app.use(express.json());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: getEnvVariable('CLIENT_URL') || '*',
+      credentials: true,
+    })
+  );
   app.use(cookieParser());
 
   app.use('/photos', express.static(path.resolve('src/uploads/photos')));
@@ -45,13 +40,11 @@ export const setupServer = () => {
   });
   app.use(pinoHttp({ logger }));
 
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
+  app.use('/api-docs', ...swaggerDocs());
 
   app.use(notFoundHandler);
-
   app.use(errorHandler);
 
   app.listen(PORT, (error) => {
