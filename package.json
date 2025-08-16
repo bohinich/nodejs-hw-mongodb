@@ -29,6 +29,7 @@
     "nodemailer": "^7.0.5",
     "pino": "^9.8.0",
     "pino-http": "^10.5.0",
+    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
