@@ -1,0 +1,54 @@
+type: object
+required:
+  - _id
+  - name
+  - phoneNumber
+  - email
+  - isFavourite
+  - contactType
+  - userId
+  - createdAt
+  - updatedAt
+properties:
+  _id:
+    type: string
+    description: Contact id
+    example: 6883d32f693bb7b3bbb08c58
+  name:
+    type: string
+    description: Contact name
+    example: Gilla Foval
+  phoneNumber:
+    type: integer
+    description: Contact phone
+  email:
+    type: string
+    description: Contact email
+    example: gilla@gmail.com
+  isFavourite:
+    type: boolean
+    description: Contact on favorite
+    example: false
+    default: false
+  contactType:
+    type: string
+    description: Contact type phone
+    enum: ['work', 'home', 'personal']
+    default: personal
+  photo:
+    type: string
+    format: binary
+    description: Contact photo
+    default: null
+  userId:
+    type: string
+    description: Contact owner id
+    example: 6883d04e88fbe9de29084882
+  createdAt:
+    type: string
+    format: date-time
+    example: 2025-07-21T17:27:59.621+00:00
+  updatedAt:
+    type: string
+    format: date-time
+    example: 2025-07-21T17:27:59.621+00:00

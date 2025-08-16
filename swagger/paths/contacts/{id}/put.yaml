@@ -1,0 +1,111 @@
+tags:
+  - Contacts
+summary: Replace contact information
+operationId: postRreplaceContact
+description: Replace contact information
+security:
+  - bearerAuth: []
+
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: string
+      example: 6883d04e88fbe9de29084882
+requestBody:
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - name
+          - phoneNumber
+          - email
+          - contactType
+        properties:
+          name:
+            type: string
+            description: Contact name
+            example: Gilla Foval
+          phoneNumber:
+            type: integer
+            description: Contact phone
+          email:
+            type: string
+            description: Contact email
+            example: gilla@gmail.com
+          isFavourite:
+            type: boolean
+            description: Contact on favorite
+            example: false
+            default: false
+          contactType:
+            type: string
+            description: Contact type phone
+            enum: ['work', 'home', 'personal']
+            default: personal
+          photo:
+            type: string
+            format: binary
+            description: Contact photo
+            default: null
+responses:
+  '200':
+    description: 'Successfully patched a contact!'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully patched a contact!
+            data:
+              $ref: ../../../components/schema/contact.yaml
+  '201':
+    description: 'Successfully created a contact!'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 201
+            message:
+              type: string
+              example: Successfully created a contact!
+            data:
+              $ref: ../../../components/schema/contact.yaml
+  '401':
+    $ref: ../../../components/responses/401.yaml
+  '404':
+    description: Contact not found
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+          properties:
+            status:
+              type: integer
+              example: 404
+            message:
+              type: string
+              example: Contact not found
+  '500':
+    $ref: ../../../components/responses/500.yaml

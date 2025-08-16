@@ -1,32 +1,41 @@
 openapi: 3.1.0
 info:
   version: 1.0.0
-  title: Node.js Contacts API
+  title: Contacnts App
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  description: API для роботи з контактами, створений для навчального проєкту.
+  description: This is a documentation of Contacnts UI
 tags:
   - name: Contacts
-    description: Операції з контактами
+    description: Operation with contacts
+  - name: Auth
+    description: Operation width user
 servers:
-  - url: http://localhost:3000
-  - url: 'https://nodejs-hw-mongodb-1r07.onrender.com'
+  - url: http://127.0.0.1:5010
+  - url: https://contacts-t4m3.onrender.com
+
 paths:
   /contacts:
-    $ref: '../swagger/paths/contacts/get.yaml'
-  /contacts/{contactId}:
-    $ref: '../swagger/paths/contacts/{id}/get.yaml'
-  /contacts/post:
-    $ref: '../swagger/paths/contacts/post.yaml'
-  /contacts/patch/{contactId}:
-    $ref: '../swagger/paths/contacts/patch.yaml'
-  /contacts/delete/{contactId}:
-    $ref: '../swagger/paths/contacts/delete.yaml'
+    get:
+      $ref: '../swagger/paths/get.yaml'
+    post:
+      $ref: '../swagger/paths/contacts/post.yaml'
+  /contacts/{id}:
+    get:
+      $ref: '../swagger/paths/contacts/{id}/get.yaml'
+    delete:
+      $ref: '../swagger/paths/contacts/{id}/delete.yaml'
+    put:
+      $ref: '../swagger/paths/contacts/{id}/put.yaml'
+    patch:
+      $ref: '../swagger/paths/contacts/{id}/patch.yaml'
+  /register:
+    post:
+      $ref: '../swagger/paths/auth/post.yaml'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-security:
-  - bearerAuth: []

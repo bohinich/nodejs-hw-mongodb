@@ -1,20 +1,23 @@
 tags:
   - Contacts
-summary: Create contact
-operationId: createContact
-description: Create contact
+summary: Updata contact information
+operationId: postUpdataContact
+description: Updata contact information
 security:
   - bearerAuth: []
+
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: string
+      example: 6883d04e88fbe9de29084882
 requestBody:
   content:
     multipart/form-data:
       schema:
         type: object
-        required:
-          - name
-          - phoneNumber
-          - email
-          - contactType
         properties:
           name:
             type: string
@@ -39,11 +42,12 @@ requestBody:
             default: personal
           photo:
             type: string
-            description: Contact photo
             format: binary
+            description: Contact photo
+            default: null
 responses:
-  '201':
-    description: Created a contact
+  '200':
+    description: 'Successfully patched a contact!'
     content:
       application/json:
         schema:
@@ -55,15 +59,29 @@ responses:
           properties:
             status:
               type: integer
-              example: 201
+              example: 200
             message:
               type: string
-              example: Successfully created a contact!
+              example: Successfully patched a contact!
             data:
-              $ref: ../../components/schema/contact.yaml
-  '400':
-    $ref: ../../components/responses/401.yaml
+              $ref: ../../../components/schema/contact.yaml
   '401':
-    $ref: ../../components/responses/401.yaml
+    $ref: ../../../components/responses/401.yaml
+  '404':
+    description: Contact not found
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+          properties:
+            status:
+              type: integer
+              example: 404
+            message:
+              type: string
+              example: Contact not found
   '500':
-    $ref: ../../components/responses/500.yaml
+    $ref: ../../../components/responses/500.yaml
