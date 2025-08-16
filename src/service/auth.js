@@ -1,35 +1,31 @@
 import createHttpError from 'http-errors';
-
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
-
 import { sendMail } from '../utils/sendMail.js';
 import { getEnvVariable } from '../utils/getEnvVar.js';
 
 export const registerUser = async (payload) => {
   const user = await User.findOne({ email: payload.email });
-
-  if (user !== null) {
+  if (user) {
     throw new createHttpError.Conflict('Email is already in use');
   }
 
   payload.password = await bcrypt.hash(payload.password, 10);
-
   return User.create(payload);
 };
 
 export async function loginUser(email, password) {
   const user = await User.findOne({ email });
-  if (user === null) {
+  if (!user) {
     throw new createHttpError.Unauthorized('Email or password is incorrect');
   }
-  const isMath = await bcrypt.compare(password, user.password);
 
-  if (isMath !== true) {
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
     throw new createHttpError.Unauthorized('Email or password is incorrect');
   }
 
@@ -50,15 +46,14 @@ export async function logoutUser(sessionId) {
 
 export async function refreshSession(sessionId, refreshToken) {
   const session = await Session.findById(sessionId);
-
-  if (session === null) {
+  if (!session) {
     throw new createHttpError.Unauthorized('Session not found');
   }
   if (session.refreshToken !== refreshToken) {
     throw new createHttpError.Unauthorized('Refresh token is invalid');
   }
   if (session.refreshTokenValidUntil < new Date()) {
-    throw new createHttpError.Unauthorized('Refresh token is expire');
+    throw new createHttpError.Unauthorized('Refresh token is expired');
   }
 
   await Session.deleteOne({ _id: session._id });
@@ -72,21 +67,17 @@ export async function refreshSession(sessionId, refreshToken) {
   });
 }
 
-export async function reqestResetPwd(email) {
+// Виправлена функція: requestResetPwd
+export async function requestResetPwd(email) {
   const user = await User.findOne({ email });
-  if (user === null) {
+  if (!user) {
     throw new createHttpError.NotFound('User not found!');
   }
 
   const token = jwt.sign(
-    {
-      sub: user._id,
-      name: user.name,
-    },
+    { sub: user._id, name: user.name },
     getEnvVariable('SECRET_JWT'),
-    {
-      expiresIn: '5m',
-    },
+    { expiresIn: '5m' }
   );
 
   await sendMail({
@@ -99,17 +90,14 @@ export async function reqestResetPwd(email) {
 export async function resetPwd(token, password) {
   try {
     const decoded = jwt.verify(token, getEnvVariable('SECRET_JWT'));
-
     const user = await User.findById(decoded.sub);
-
-    if (user === null) {
+    if (!user) {
       throw new createHttpError.NotFound('User not found!');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-    console.log(decoded);
-  } catch (error) {
+  } catch {
     throw new createHttpError.Unauthorized('Token is expired or invalid.');
   }
 }
