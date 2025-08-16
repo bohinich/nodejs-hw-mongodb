@@ -1,4 +1,4 @@
-import { ContactsCollection } from '../models/сontacts.js';
+import { ContactsCollection } from '../models/contacts.js';
 
 export const getAllContacts = async (
   page,
@@ -20,12 +20,10 @@ export const getAllContacts = async (
   }
 
   const [total, contacts] = await Promise.all([
-    ContactsCollection.find().countDocuments(contactQuery),
-    contactQuery
-      .sort({ [sortBy]: sortOrder })
-      .skip(skip)
-      .limit(perPage),
+    ContactsCollection.countDocuments({ userId, ...filter }),
+    contactQuery.sort({ [sortBy]: sortOrder }).skip(skip).limit(perPage),
   ]);
+
   const totalPage = Math.ceil(total / perPage);
 
   return {
@@ -38,41 +36,36 @@ export const getAllContacts = async (
     hasPreviousPage: page > 1,
   };
 };
+
 export const getContactById = async (contactId, userId) => {
-  const contacts = await ContactsCollection.findOne({ _id: contactId, userId });
-  return contacts;
+  return ContactsCollection.findOne({ _id: contactId, userId });
 };
 
 export const createContact = async (payload) => {
-  const contact = await ContactsCollection.create(payload);
-  return contact;
+  return ContactsCollection.create(payload);
 };
+
 export const deleteContact = async (contactId, userId) => {
-  const contact = await ContactsCollection.findOneAndDelete({
-    _id: contactId,
-    userId,
-  });
-  return contact;
+  return ContactsCollection.findOneAndDelete({ _id: contactId, userId });
 };
-export const updataContact = async (contactId, payload, userId) => {
-  const contact = await ContactsCollection.findByIdAndUpdate(
-    contactId,
+
+export const updateContact = async (contactId, payload, userId) => {
+  return ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
     payload,
-    userId,
-    { new: true },
+    { new: true }
   );
-  return contact;
 };
 
 export const replaceContact = async (contactId, payload, userId) => {
-  const contact = await ContactsCollection.findByIdAndUpdate(
-    contactId,
+  const contact = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
     payload,
-    userId,
-    { new: true, upsert: true },
+    { new: true, upsert: true, returnDocument: 'after' }
   );
+
   return {
     value: contact,
-    updatedExisting: contact.lastErrorObject.updatedExisting,
+    updatedExisting: !!contact,
   };
 };
