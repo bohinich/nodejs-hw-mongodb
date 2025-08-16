@@ -3,93 +3,131 @@ import {
   registerUser,
   logoutUser,
   refreshSession,
-  reqestResetPwd,
+  requestResetPwd,
   resetPwd,
 } from '../service/auth.js';
 
 export const registerUserController = async (req, res) => {
-  const user = await registerUser(req.body);
-  console.log(user);
+  try {
+    const user = await registerUser(req.body);
+    console.log(user);
 
-  res.status(201).json({
-    staus: 201,
-    message: 'Successfully registered a user!',
-    data: user,
-  });
+    res.status(201).json({
+      status: 201,
+      message: 'Successfully registered a user!',
+      data: user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 500, message: 'Registration failed', error: error.message });
+  }
 };
 
 export const loginController = async (req, res) => {
-  const session = await loginUser(req.body.email, req.body.password);
+  try {
+    const session = await loginUser(req.body.email, req.body.password);
 
-  res.cookie('sessionId', session._id, {
-    httpOnly: true,
-    expire: session.refreshTokenValidUntil,
-  });
+    res.cookie('sessionId', session._id, {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+    });
 
-  res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    expire: session.refreshTokenValidUntil,
-  });
+    res.cookie('refreshToken', session.refreshToken, {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+    });
 
-  res.status(200).json({
-    staus: 200,
-    message: 'Successfully logged in an user!',
-    data: {
-      accessToken: session.accessToken,
-    },
-  });
-};
-export async function logoutController(req, res) {
-  const { sessionId } = req.cookies;
-  if (typeof sessionId !== 'undefined') {
-    await logoutUser(sessionId);
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully logged in an user!',
+      data: {
+        accessToken: session.accessToken,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ status: 401, message: 'Login failed', error: error.message });
   }
+};
 
-  res.clearCookie('sessionId');
-  res.clearCookie('refreshToken');
+export async function logoutController(req, res) {
+  try {
+    const { sessionId } = req.cookies;
+    if (sessionId) {
+      await logoutUser(sessionId);
+    }
 
-  res.status(204).end();
+    res.clearCookie('sessionId');
+    res.clearCookie('refreshToken');
+
+    res.status(204).end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 500, message: 'Logout failed', error: error.message });
+  }
 }
 
 export async function refreshController(req, res) {
-  const { sessionId, refreshToken } = req.cookies;
-  const session = await refreshSession(sessionId, refreshToken);
+  try {
+    const { sessionId, refreshToken } = req.cookies;
+    const session = await refreshSession(sessionId, refreshToken);
 
-  res.cookie('sessionId', session._id, {
-    httpOnly: true,
-    expire: session.refreshTokenValidUntil,
-  });
+    res.cookie('sessionId', session._id, {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+    });
 
-  res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    expire: session.refreshTokenValidUntil,
-  });
+    res.cookie('refreshToken', session.refreshToken, {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+    });
 
-  res.status(200).json({
-    staus: 200,
-    message: 'Successfully refreshed a session!',
-    data: {
-      accessToken: session.accessToken,
-    },
-  });
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully refreshed a session!',
+      data: {
+        accessToken: session.accessToken,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ status: 401, message: 'Refresh failed', error: error.message });
+  }
 }
 
 export async function requestResetPwdController(req, res) {
-  await reqestResetPwd(req.body.email);
-  res.status(200).json({
-    status: 200,
-    message: 'Reset password email has been successfully sent.',
-  });
+  try {
+    await requestResetPwd(req.body.email);
+    res.status(200).json({
+      status: 200,
+      message: 'Reset password email has been successfully sent.',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Failed to send reset password email.',
+      error: error.message,
+    });
+  }
 }
 
 export async function resetPwdController(req, res) {
-  const { token, password } = req.body;
+  try {
+    const { token, password } = req.body;
+    await resetPwd(token, password);
 
-  await resetPwd(token, password);
-
-  res.status(200).json({
-    status: 200,
-    message: 'Password has been successfully reset.',
-    data: {},
-  });
+    res.status(200).json({
+      status: 200,
+      message: 'Password has been successfully reset.',
+      data: {},
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Password reset failed',
+      error: error.message,
+    });
+  }
 }

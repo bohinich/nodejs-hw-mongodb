@@ -1,13 +1,18 @@
-import path from 'node:path';
 import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.resolve('src/tmp'));
-  },
-  filename: function (req, file, cb) {
-    const uniquePrefix = Date.now() + '-' + Math.round(Math.round() * 1e9);
-    cb(null, `${uniquePrefix}_${file.originalname}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: process.env.CLOUDINARY_FOLDER || 'contacts',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
   },
 });
 
