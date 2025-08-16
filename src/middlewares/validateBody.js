@@ -1,16 +1,15 @@
-import createHttpRrror from 'http-errors';
+import createHttpError from 'http-errors';
 
-export function validateBody(shema) {
+export function validateBody(schema) {
   return async (req, res, next) => {
     try {
-      await shema.validateAsync(req.body, {
+      await schema.validateAsync(req.body, {
         abortEarly: false,
       });
-
       next();
     } catch (error) {
       const errors = error.details.map((detail) => detail.message);
-      next(new createHttpRrror.BadRequest(errors));
+      next(new createHttpError.BadRequest(errors));
     }
   };
 }
