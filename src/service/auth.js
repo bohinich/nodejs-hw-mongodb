@@ -1,12 +1,10 @@
 import createHttpError from 'http-errors';
-
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
-
 import { sendMail } from '../utils/sendMail.js';
 import { getEnvVariable } from '../utils/getEnvVar.js';
 
@@ -27,9 +25,10 @@ export async function loginUser(email, password) {
   if (user === null) {
     throw new createHttpError.Unauthorized('Email or password is incorrect');
   }
-  const isMath = await bcrypt.compare(password, user.password);
 
-  if (isMath !== true) {
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
     throw new createHttpError.Unauthorized('Email or password is incorrect');
   }
 
@@ -58,7 +57,7 @@ export async function refreshSession(sessionId, refreshToken) {
     throw new createHttpError.Unauthorized('Refresh token is invalid');
   }
   if (session.refreshTokenValidUntil < new Date()) {
-    throw new createHttpError.Unauthorized('Refresh token is expire');
+    throw new createHttpError.Unauthorized('Refresh token is expired');
   }
 
   await Session.deleteOne({ _id: session._id });
@@ -72,9 +71,9 @@ export async function refreshSession(sessionId, refreshToken) {
   });
 }
 
-export async function reqestResetPwd(email) {
+export async function requestResetPwd(email) {
   const user = await User.findOne({ email });
-  if (user === null) {
+  if (!user) {
     throw new createHttpError.NotFound('User not found!');
   }
 
@@ -84,15 +83,13 @@ export async function reqestResetPwd(email) {
       name: user.name,
     },
     getEnvVariable('SECRET_JWT'),
-    {
-      expiresIn: '5m',
-    },
+    { expiresIn: '5m' }
   );
 
   await sendMail({
     to: email,
     subject: 'Reset password',
-    html: `<p>To reset password please visit this <a href="http://localhost:3000/auth/reset-pwd/${token}">Link</a></p>`,
+    html: `<p>To reset password please visit this <a href="${getEnvVariable('APP_DOMAIN')}/auth/reset-pwd/${token}">Link</a></p>`,
   });
 }
 
@@ -102,13 +99,14 @@ export async function resetPwd(token, password) {
 
     const user = await User.findById(decoded.sub);
 
-    if (user === null) {
+    if (!user) {
       throw new createHttpError.NotFound('User not found!');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-    console.log(decoded);
+
+    console.log('Password reset for user:', decoded);
   } catch (error) {
     throw new createHttpError.Unauthorized('Token is expired or invalid.');
   }
