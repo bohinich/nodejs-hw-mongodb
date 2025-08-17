@@ -45,7 +45,8 @@ export const setupServer = () => {
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
 
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  const swaggerDocument = swaggerDocs();
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
   app.use(notFoundHandler);
   app.use(errorHandler);
