@@ -14,47 +14,32 @@ import contactsRouter from './routers/contacts.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
-import swaggerUi from 'swagger-ui-express';
 import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
-const PORT = Number(getEnvVariable('PORT')) || 5150;
+const PORT = Number(getEnvVariable('PORT')) || 3000;
 
 export const setupServer = () => {
   const app = express();
 
   app.use(express.json());
-
-  app.use(
-    cors({
-      origin: getEnvVariable('CLIENT_URL') || '*',
-      credentials: true,
-    })
-  );
-
+  app.use(cors());
   app.use(cookieParser());
-
   app.use('/photos', express.static(path.resolve('src/uploads/photos')));
 
-  const logger = pino({
-    transport: {
-      target: 'pino-pretty',
-    },
-  });
+  const logger = pino({ transport: { target: 'pino-pretty' } });
   app.use(pinoHttp({ logger }));
 
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
 
-  const swaggerDocument = swaggerDocs();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  const [swaggerServe, swaggerSetup] = swaggerDocs();
+  app.use('/api-docs', swaggerServe, swaggerSetup);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
 
   app.listen(PORT, (error) => {
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     logger.info(`Server is running on port ${PORT}`);
   });
 };
