@@ -1,5 +1,7 @@
 import createHttpError from 'http-errors';
+import swaggerUI from 'swagger-ui-express';
 import fs from 'node:fs';
+
 import { SWAGGER_PATH } from '../constants/index.js';
 
 export const swaggerDocs = () => {
@@ -7,6 +9,7 @@ export const swaggerDocs = () => {
     const swaggerDoc = JSON.parse(fs.readFileSync(SWAGGER_PATH, 'utf-8'));
     return swaggerDoc;
   } catch (err) {
-    throw createHttpError(500, "Can't load swagger docs");
+    console.error("Can't load swagger docs:", err);
+    return null;
   }
 };

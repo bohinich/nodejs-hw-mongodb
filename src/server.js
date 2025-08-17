@@ -15,7 +15,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerDocs } from './middlewares/swaggerDocs.js'; 
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 const PORT = Number(getEnvVariable('PORT')) || 5150;
 
@@ -46,7 +46,11 @@ export const setupServer = () => {
   app.use('/contacts', authenticate, contactsRouter);
 
   const swaggerDocument = swaggerDocs();
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  if (swaggerDocument) {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  } else {
+    console.error('Swagger documentation not loaded');
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);
