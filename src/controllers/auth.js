@@ -3,7 +3,7 @@ import {
   registerUser,
   logoutUser,
   refreshSession,
-  reqestResetPwd,
+  requestResetPwd,
   resetPwd,
 } from '../service/auth.js';
 
