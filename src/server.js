@@ -4,6 +4,7 @@ import pino from 'pino';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
+
 import path from 'node:path';
 
 import { getEnvVariable } from './utils/getEnvVar.js';
@@ -14,23 +15,15 @@ import contactsRouter from './routers/contacts.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/authenticate.js';
-import swaggerUi from 'swagger-ui-express';
 import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
-const PORT = Number(getEnvVariable('PORT')) || 5150;
+const PORT = getEnvVariable('PORT') || 5150;
 
 export const setupServer = () => {
   const app = express();
 
   app.use(express.json());
-
-  app.use(
-    cors({
-      origin: getEnvVariable('CLIENT_URL') || '*',
-      credentials: true,
-    })
-  );
-
+  app.use(cors());
   app.use(cookieParser());
 
   app.use('/photos', express.static(path.resolve('src/uploads/photos')));
@@ -44,21 +37,16 @@ export const setupServer = () => {
 
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
-
-  const swaggerDocument = swaggerDocs();
-  if (swaggerDocument) {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  } else {
-    console.error('Swagger documentation not loaded');
-  }
+  app.use('/api-docs', swaggerDocs());
 
   app.use(notFoundHandler);
+
   app.use(errorHandler);
 
   app.listen(PORT, (error) => {
     if (error) {
       throw error;
     }
-    logger.info(`Server is running on port ${PORT}`);
+    logger.info(`Server is runing on port ${PORT}`);
   });
 };

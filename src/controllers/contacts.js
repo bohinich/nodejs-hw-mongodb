@@ -5,7 +5,7 @@ import {
   getAllContacts,
   getContactById,
   replaceContact,
-  updateContact,
+  updataContact,
 } from '../service/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
@@ -17,7 +17,14 @@ export const getContactsController = async (req, res) => {
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filter = parseFilterParams(req.query);
 
-  const contacts = await getAllContacts(page, perPage, sortBy, sortOrder, filter, req.user.id);
+  const contacts = await getAllContacts(
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+    req.user.id,
+  );
   res.json({
     status: 200,
     message: 'Successfully found contacts!',
@@ -26,25 +33,29 @@ export const getContactsController = async (req, res) => {
 };
 
 export const getContactByIdController = async (req, res) => {
-  const contact = await getContactById(req.params.contactId, req.user.id);
-  if (!contact) throw new createHttpError.NotFound('Contact not found');
+  const { contactId } = req.params;
+  const contact = await getContactById(contactId, req.user.id);
+
+  if (contact === null) {
+    throw new createHttpError.NotFound('Contact not found');
+  }
 
   res.json({
     status: 200,
-    message: `Successfully found contact with id ${req.params.contactId}`,
+    message: `Successfully found contact with id ${contactId}`,
     data: contact,
   });
 };
 
 export const createContactController = async (req, res) => {
-  const photoUrl = req.file ? (await uploadToCloudinary(req.file.path)).secure_url : null;
+  const result = await uploadToCloudinary(req.file.path);
+  console.log(result);
 
   const contact = await createContact({
     ...req.body,
-    photo: photoUrl,
+    photo: result.secure_url, //: `http://localhost:5010/photos/${req.file.filename}`,
     userId: req.user.id,
   });
-
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
@@ -53,33 +64,51 @@ export const createContactController = async (req, res) => {
 };
 
 export const deleteContactController = async (req, res) => {
-  const contact = await deleteContact(req.params.contactId, req.user.id);
-  if (!contact) throw new createHttpError.NotFound('Contact not found');
+  const { contactId } = req.params;
+  const contact = await deleteContact(contactId, req.user.id);
 
-  res.json({
+  if (contact === null) {
+    throw createHttpError.NotFound('Contact not found');
+  }
+
+  res.status(200).json({
     status: 200,
-    message: `Successfully deleted contact with id ${req.params.contactId}`,
+    message: `Successfully delete contact id ${contactId}!`,
     data: contact,
   });
 };
 
-export const updateContactController = async (req, res) => {
-  const contact = await updateContact(req.params.contactId, req.body, req.user.id);
-  if (!contact) throw new createHttpError.NotFound('Contact not found');
-
+export const updataContactController = async (req, res) => {
+  const { contactId } = req.params;
+  const contact = await updataContact(contactId, req.body, req.user.id);
+  if (contact === null) {
+    throw new createHttpError(404, 'Contact not found');
+  }
   res.json({
     status: 200,
-    message: 'Successfully updated a contact!',
+    message: `Successfully patched a contact!`,
     data: contact,
   });
 };
 
 export const replaceContactController = async (req, res) => {
-  const { value, updatedExisting } = await replaceContact(req.params.contactId, req.body, req.user.id);
+  const { contactId } = req.params;
+  const { value, updatedExisting } = await replaceContact(
+    contactId,
+    req.body,
+    req.user.id,
+  );
 
-  res.status(updatedExisting ? 200 : 201).json({
-    status: updatedExisting ? 200 : 201,
-    message: updatedExisting ? 'Successfully updated a contact!' : 'Successfully created a contact!',
+  if (updatedExisting === true) {
+    return res.json({
+      status: 200,
+      message: 'Successfully patched a contact!',
+      data: value,
+    });
+  }
+  return res.status(201).json({
+    status: 201,
+    message: 'Successfully created a contact!',
     data: value,
   });
 };

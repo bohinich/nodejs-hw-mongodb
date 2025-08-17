@@ -20,10 +20,12 @@ export const getAllContacts = async (
   }
 
   const [total, contacts] = await Promise.all([
-    ContactsCollection.countDocuments({ userId, ...filter }),
-    contactQuery.sort({ [sortBy]: sortOrder }).skip(skip).limit(perPage),
+    ContactsCollection.find().countDocuments(contactQuery),
+    contactQuery
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(perPage),
   ]);
-
   const totalPage = Math.ceil(total / perPage);
 
   return {
@@ -36,36 +38,41 @@ export const getAllContacts = async (
     hasPreviousPage: page > 1,
   };
 };
-
 export const getContactById = async (contactId, userId) => {
-  return ContactsCollection.findOne({ _id: contactId, userId });
+  const contacts = await ContactsCollection.findOne({ _id: contactId, userId });
+  return contacts;
 };
 
 export const createContact = async (payload) => {
-  return ContactsCollection.create(payload);
+  const contact = await ContactsCollection.create(payload);
+  return contact;
 };
-
 export const deleteContact = async (contactId, userId) => {
-  return ContactsCollection.findOneAndDelete({ _id: contactId, userId });
+  const contact = await ContactsCollection.findOneAndDelete({
+    _id: contactId,
+    userId,
+  });
+  return contact;
 };
-
-export const updateContact = async (contactId, payload, userId) => {
-  return ContactsCollection.findOneAndUpdate(
-    { _id: contactId, userId },
+export const updataContact = async (contactId, payload, userId) => {
+  const contact = await ContactsCollection.findByIdAndUpdate(
+    contactId,
     payload,
-    { new: true }
+    userId,
+    { new: true },
   );
+  return contact;
 };
 
 export const replaceContact = async (contactId, payload, userId) => {
-  const contact = await ContactsCollection.findOneAndUpdate(
-    { _id: contactId, userId },
+  const contact = await ContactsCollection.findByIdAndUpdate(
+    contactId,
     payload,
-    { new: true, upsert: true, returnDocument: 'after' }
+    userId,
+    { new: true, upsert: true },
   );
-
   return {
     value: contact,
-    updatedExisting: !!contact,
+    updatedExisting: contact.lastErrorObject.updatedExisting,
   };
 };

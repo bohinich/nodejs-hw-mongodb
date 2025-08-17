@@ -1,24 +1,31 @@
-const ALLOWED_TYPES = ['work', 'home', 'personal'];
-
 function parseType(value) {
-  if (!value) return undefined;
-  return ALLOWED_TYPES.includes(value) ? value : undefined;
+  if (typeof value === 'undefined') {
+    return undefined;
+  }
+  const keys = ['work', 'home', 'personal'];
+  if (keys.includes(value) !== true) {
+    return undefined;
+  }
+  return value;
 }
 
 function parseIsFavourite(value) {
-  if (!value) return undefined;
+  if (typeof value === 'undefined') {
+    return undefined;
+  }
+  const parsedValue = JSON.parse(value);
 
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-
-  return undefined; // все інше відкидаємо
+  return parsedValue;
 }
 
 export function parseFilterParams(query) {
   const { type, isFavourite } = query;
 
+  const parsedType = parseType(type);
+  const parsedIsFavorite = parseIsFavourite(isFavourite);
+
   return {
-    type: parseType(type),
-    isFavourite: parseIsFavourite(isFavourite),
+    type: parsedType,
+    isFavourite: parsedIsFavorite,
   };
 }
