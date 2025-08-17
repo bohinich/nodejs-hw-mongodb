@@ -2,14 +2,14 @@ import { model, Schema } from 'mongoose';
 
 const userSchema = new Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
+    name: { type: String, require: true },
+    email: { type: String, unique: true, require: true },
+    password: { type: String, require: true },
   },
   { timestamps: true, versionKey: false },
 );
 
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJson = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
